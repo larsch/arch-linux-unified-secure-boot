@@ -1,0 +1,103 @@
+#!/bin/sh -eu
+#
+# All-in-one script install or update secure boot EFI image using shim-signed
+# and systemd-boot. This script requires 'shim-signed', 'efibootmgr', 'openssl'
+#
+# Dependencies: efibootmgr sbsigntools shim-signed binutils
+
+# Path of EFI partition
+esp=/efi
+
+# Path of boot files (kernel). This should be on an encrypted partition.
+boot=/boot
+
+# Location of MOK (Machine Owner Key). This must be on an encrypted partition.
+keydir=/etc/kernel/keys
+
+# Block device that is booted
+blkdev=/dev/nvme0n1
+
+# File containing kernel arguments
+cmdline=/etc/kernel/cmdline
+
+# Name of EFI folder for shim
+efidir=shim
+
+set -eu
+
+function die() {
+	echo $*
+	exit 1
+}
+
+# Verify prerequisites
+[ -d "${esp}/EFI" ] || die "ESP not found"
+[ -f "${boot}/initramfs-linux.img" ] || die "initramfs-linux.img not found in ${boot}"
+[ -f "${boot}/vmlinuz-linux" ] || die "vmlinuz-linux not found in ${boot}"
+[ -f "${cmdline}" ] || die "${cmdline} not found"
+
+destdir=${esp}/EFI/${efidir}
+
+work=$(mktemp -d /tmp/update-unified-kernel-image-XXXXXX)
+
+[ -d "${work}" ] || die "workdir doesn't exist"
+
+# Create EFI boot entry if shimx64.efi is not yet installed
+[ -e ${destdir}/shimx64.efi ] || efibootmgr --verbose --disk ${blkdev} --part 1 --create --label "Shim" --loader /EFI/${efidir}/shimx64.efi
+
+# Install shim and MokManager
+install -CD /usr/share/shim-signed/shimx64.efi ${destdir}/shimx64.efi
+install -CD /usr/share/shim-signed/mmx64.efi ${destdir}/mmx64.efi
+
+# Generate Machine Owner Key if missing
+if [ ! -f ${keydir}/MOK.key ]; then
+	echo Generating key and certificate
+	mkdir -p $keydir
+	openssl req -newkey rsa:4096 -nodes -keyout ${keydir}/MOK.key -new -x509 -sha256 -days 3650 -subj "/CN=my Machine Owner Key/" -out ${keydir}/MOK.crt
+	openssl x509 -outform DER -in ${keydir}/MOK.crt -out ${keydir}/MOK.cer
+fi
+
+(
+	cd "${work}"
+
+	# Install certificate
+	install -CD "${keydir}/MOK.cer" "${esp}/MOK.cer"
+
+	# Combine microcode and initramfs
+	initrd=()
+	[ ! -f ${boot}/intel-ucode.img ] || initrd+=(${boot}/intel-ucode.img)
+	[ ! -f ${boot}/amd-ucode.img ] || initrd+=(${boot}/amd-ucode.img)
+	initrd+=(${boot}/initramfs-linux.img)
+	cat ${initrd[*]} >ucode-and-ramfs.img
+	
+	# Generate version to be displayed in boot menu
+	cp /etc/os-release .
+	echo "VERSION_ID=$(date -Iseconds)" >> os-release
+	
+	# Generate EFI image with stub, kernel, initrd, cmdline
+	TS=$(date +%s)
+	objcopy \
+		--add-section .osrel=os-release --change-section-vma .osrel=0x20000 \
+		--add-section .cmdline=${cmdline} --change-section-vma .cmdline=0x30000 \
+		--add-section .linux=${boot}/vmlinuz-linux --change-section-vma .linux=0x2000000 \
+		--add-section .initrd=ucode-and-ramfs.img --change-section-vma .initrd=0x3000000 \
+		/usr/lib/systemd/boot/efi/linuxx64.efi.stub "linux-$TS.efi"
+	
+	# Update systemd-boot
+	/usr/bin/bootctl update ||:
+	
+	# Sign systemd-boot with MOK
+	sbsign --key ${keydir}/MOK.key --cert ${keydir}/MOK.crt \
+		--output ${destdir}/grubx64.efi /usr/lib/systemd/boot/efi/systemd-bootx64.efi
+	
+	# Signed unified image with MOK
+	mkdir -p ${esp}/EFI/Linux
+	sbsign --key ${keydir}/MOK.key --cert ${keydir}/MOK.crt \
+		--output "${esp}/EFI/Linux/linux-$TS.efi" "linux-$TS.efi"
+)
+
+# Remove temporary files
+rm -fr "${work}"
+
+# Delete all but last 3 images
+ls ${esp}/EFI/Linux/linux-* | sort -r | tail -n+4 | xargs -r rm

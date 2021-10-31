@@ -1,0 +1,13 @@
+[Trigger]
+Type = Package
+Operation = Upgrade
+Target = systemd
+Target = linux
+
+[Action]
+Description = Updating unified kernel image
+When = PostTransaction
+Exec = /usr/bin/update-unified-kernel-image
+Depends = sbsigntools
+Depends = shim
+Depends = efibootmgr
