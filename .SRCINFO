@@ -1,0 +1,17 @@
+pkgbase = unified-secure-boot
+	pkgdesc = Scripts to automate generation of unified kernel image for secure boot
+	pkgver = 0.2
+	pkgrel = 1
+	url = https://github.com/larsch/arch-linux-unified-secure-boot
+	arch = x86_64
+	license = MIT
+	depends = sbsigntools
+	depends = binutils
+	depends = efibootmgr
+	depends = shim-signed
+	source = 99-update-unified-kernel-image.hook
+	source = update-unified-kernel-image
+	sha256sums = 560dcaa2ecf09d201d85eaee281c2c6e9f6bd87c73c1b81a7e4cf9eabcc3715e
+	sha256sums = 86e1bef101eae636bb12205d4242dc3c599f582f992c775bf666be85312e0150
+
+pkgname = unified-secure-boot
