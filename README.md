@@ -14,14 +14,14 @@ without modifying system keys (which can brick some devices).
 
 The steps for secure boot using this method is:
 
-1. Load shimx64.efi (signed by Microsoft)
-2. Load systemd-bootx64.efi (as grubx64.efi) signed with MOK
-3. Load unified image signed with MOK, containing:
+1. Load `shimx64.efi` (signed by Microsoft)
+2. Load `systemd-bootx64.efi` (renamed to `grubx64.efi`) signed with MOK
+3. Load unified kernel image, signed with MOK, containing:
    1. Linux Kernel
    2. Initramfs
    3. Kernel command line (arguments)
 
-For full security, you must:
+To secure a system, you must also:
 
 1. [Encrypt the root file system](https://wiki.archlinux.org/title/Dm-crypt), including `/boot`
 2. Password-protect the BIOS
