@@ -1,14 +1,10 @@
 # Arch Linux Unified Kernel Image Secure Boot
 
-Script to automate installation and update an secure boot enabled EFI image
-using shim, systemd-boot and a unified kernel image signed using a locally
-generate machine owner key.
-
-This repository contains a script to automate installing and updating a
-[shim](https://github.com/rhboot/shim) and [Unified
-Kernel](https://systemd.io/BOOT_LOADER_SPECIFICATION/#type-2-efi-unified-kernel-images),
-signing using a locally generate Machine Owner Key. This enables secure boot
-without modifying system keys (which can brick some devices).
+Script to automate installation and update a secure boot enabled EFI image
+using [shim](https://github.com/rhboot/shim), [systemd-boot](https://wiki.archlinux.org/title/Systemd-boot)
+and a [unified kernel image](https://systemd.io/BOOT_LOADER_SPECIFICATION/#type-2-efi-unified-kernel-images)
+signed using a locally generated machine owner key (MOK). This enables secure
+boot without modifying system keys (which can brick some devices).
 
 ## Secure Boot
 
