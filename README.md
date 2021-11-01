@@ -31,6 +31,7 @@ kernel (`vmlinuz-linux`) and initramfs (`initramfs-linux.img`) are located in
 the default locations in `/boot` and that your primary boot device is `/dev/nvme0n1`.
 These can be customized at the top of the main script.
 
+1. Install dependencies: `yay -Syu binutils efibootmgr sbsigntools shim-signed`
 1. Copy [`update-unified-kernel-image`](https://github.com/larsch/arch-linux-unified-secure-boot/blob/master/update-unified-kernel-image) to `/usr/bin` and give it executable permission.
 1. Copy your kernel boot parameters to `/etc/kernel/cmdline`.
 2. Run `update-unified-kernel-image`
@@ -51,6 +52,7 @@ These can be customized at the top of the main script.
 * sbsigntools
 * binutils (objcopy)
 * efibootmgr
+* shim-signed (from AUR)
 
 ## Authors
 
