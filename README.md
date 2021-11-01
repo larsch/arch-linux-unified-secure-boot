@@ -47,7 +47,7 @@ of the main script.
       must be the default boot entry.
 4. Boot into MokManager (should be automatic, since the MOK is not yet enrolled).
 5. Enroll the `MOK.cer` certificate.
-6. Install (`99-update-unified-kernel-image.hook`)[https://github.com/larsch/arch-linux-unified-secure-boot/blob/master/99-update-efi-stub.hook] to `/etc/pacman.d/hooks/` to automatically
+6. Install [`99-update-unified-kernel-image.hook`](https://github.com/larsch/arch-linux-unified-secure-boot/blob/master/99-update-unified-kernel-image.hook) to `/etc/pacman.d/hooks/` to automatically
    run `update-unified-kernel-image` if Kernel or systemd is updated by pacman.
 
 ## Dependencies
