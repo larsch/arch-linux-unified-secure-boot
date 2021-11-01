@@ -13,6 +13,7 @@ The steps for secure boot using this method is:
 1. Load `shimx64.efi` (signed by Microsoft)
 2. Load `systemd-bootx64.efi` (renamed to `grubx64.efi`) signed with MOK
 3. Load unified kernel image, signed with MOK, containing:
+   1. systemd-boot's EFI stub
    1. Linux Kernel
    2. Initramfs
    3. Kernel command line (arguments)
