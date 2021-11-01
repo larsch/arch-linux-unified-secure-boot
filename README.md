@@ -26,10 +26,10 @@ To secure a system, you must also:
 
 ## Installation
 
-This assumes that your ESP (EFI System Partition) is mounted at `/mnt`, that
-Kernel and initrdfs are located in the default locations in `/boot` and that
-your primary boot device is `/dev/nvme0n1`. These can be customized at the top
-of the main script.
+This assumes that your ESP (EFI System Partition) is mounted at `/efi`, that
+kernel (`vmlinuz-linux`) and initramfs (`initramfs-linux.img`) are located in
+the default locations in `/boot` and that your primary boot device is `/dev/nvme0n1`.
+These can be customized at the top of the main script.
 
 1. Copy [`update-unified-kernel-image`](https://github.com/larsch/arch-linux-unified-secure-boot/blob/master/update-unified-kernel-image) to `/usr/bin` and give it executable permission.
 1. Copy your kernel boot parameters to `/etc/kernel/cmdline`.
