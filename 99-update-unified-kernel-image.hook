@@ -9,5 +9,5 @@ Description = Updating unified kernel image
 When = PostTransaction
 Exec = /usr/bin/update-unified-kernel-image
 Depends = sbsigntools
-Depends = shim
+Depends = shim-signed
 Depends = efibootmgr
