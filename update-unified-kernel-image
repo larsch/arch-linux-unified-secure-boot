@@ -1,4 +1,4 @@
-#!/bin/sh -eu
+#!/bin/bash -eu
 #
 # All-in-one script install or update secure boot EFI image using shim-signed
 # and systemd-boot. This script requires 'shim-signed', 'efibootmgr', 'openssl'
@@ -29,7 +29,7 @@ initramfs=${boot}/initramfs-linux.img
 kernel=${boot}/vmlinuz-linux
 
 function die() {
-	echo $*
+	echo "$@"
 	exit 1
 }
 
@@ -68,10 +68,10 @@ fi
 
 	# Combine microcode and initramfs
 	initrd=()
-	[ ! -f ${boot}/intel-ucode.img ] || initrd+=(${boot}/intel-ucode.img)
-	[ ! -f ${boot}/amd-ucode.img ] || initrd+=(${boot}/amd-ucode.img)
+	[ ! -f "${boot}/intel-ucode.img" ] || initrd+=("${boot}/intel-ucode.img")
+	[ ! -f "${boot}/amd-ucode.img" ] || initrd+=("${boot}/amd-ucode.img")
 	initrd+=("${initramfs}")
-	cat ${initrd[*]} >ucode-and-ramfs.img
+	cat "${initrd[@]}" >ucode-and-ramfs.img
 	
 	# Generate version to be displayed in boot menu
 	cp /etc/os-release .
@@ -103,4 +103,4 @@ fi
 rm -fr "${work}"
 
 # Delete all but last 3 images
-ls ${esp}/EFI/Linux/linux-* | sort -r | tail -n+4 | xargs -r rm
+find "${esp}/EFI/Linux" -name "linux-[0-9]*.efi" | sort -r | tail -n+4 | xargs -r rm
