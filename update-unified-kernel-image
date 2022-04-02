@@ -25,10 +25,14 @@ efidir=shim
 
 set -eu
 
-initramfs=${boot}/initramfs-linux.img
-kernel=${boot}/vmlinuz-linux
+suffix=${1:-}
+append=${suffix:+-}${suffix}
+prettynameappend=${suffix:+ }$(echo "${suffix}" | tr "[:lower:]" "[:upper:]")
+initramfs=${boot}/initramfs-linux${append}.img
+kernel=${boot}/vmlinuz-linux${append}
+echo $prettynameappend
 
-latest=$(find "${esp}/EFI/Linux" -name "linux-[0-9]*.efi" | sort | tail -n1)
+latest=$(find "${esp}/EFI/Linux" -name "linux${append}-[0-9]*.efi" | sort | tail -n1)
 
 if [ -n "$latest" ]; then
 	if ! [ "$kernel" -nt "$latest" ] && ! [ "$initramfs" -nt "$latest" ]; then
@@ -85,6 +89,8 @@ fi
 	# Generate version to be displayed in boot menu
 	cp /etc/os-release .
 	echo "VERSION_ID=$(date -Iseconds)" >> os-release
+	sed -i "s/\(.*NAME\)=\"\(.*\)\"/\\1=\"\\2${prettynameappend}\"/" os-release 
+	cat os-release
 	
 	# Generate EFI image with stub, kernel, initrd, cmdline
 	TS=$(date +%s)
@@ -93,7 +99,7 @@ fi
 		--add-section .cmdline=${cmdline} --change-section-vma .cmdline=0x30000 \
 		--add-section ".linux=${kernel}" --change-section-vma .linux=0x2000000 \
 		--add-section .initrd=ucode-and-ramfs.img --change-section-vma .initrd=0x3000000 \
-		/usr/lib/systemd/boot/efi/linuxx64.efi.stub "linux-$TS.efi"
+		/usr/lib/systemd/boot/efi/linuxx64.efi.stub "linux${append}-$TS.efi"
 	
 	# Update systemd-boot
 	/usr/bin/bootctl update ||:
@@ -105,11 +111,11 @@ fi
 	# Signed unified image with MOK
 	mkdir -p ${esp}/EFI/Linux
 	sbsign --key ${keydir}/MOK.key --cert ${keydir}/MOK.crt \
-		--output "${esp}/EFI/Linux/linux-$TS.efi" "linux-$TS.efi"
+		--output "${esp}/EFI/Linux/linux${append}-$TS.efi" "linux${append}-$TS.efi"
 )
 
 # Remove temporary files
 rm -fr "${work}"
 
 # Delete all but last 3 images
-find "${esp}/EFI/Linux" -name "linux-[0-9]*.efi" | sort -r | tail -n+4 | xargs -r rm
+find "${esp}/EFI/Linux" -name "linux${append}-[0-9]*.efi" | sort -r | tail -n+4 | xargs -r rm
