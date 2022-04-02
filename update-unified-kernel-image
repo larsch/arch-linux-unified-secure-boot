@@ -28,8 +28,17 @@ set -eu
 initramfs=${boot}/initramfs-linux.img
 kernel=${boot}/vmlinuz-linux
 
+latest=$(find "${esp}/EFI/Linux" -name "linux-[0-9]*.efi" | sort | tail -n1)
+
+if [ -n "$latest" ]; then
+	if ! [ "$kernel" -nt "$latest" ] && ! [ "$initramfs" -nt "$latest" ]; then
+		echo "update-unified-kernel-image: $latest is newer than $initramfs and $kernel. Nothing to do."
+		exit 0
+	fi
+fi
+
 function die() {
-	echo "$@"
+	echo "update-unified-kernel-image:" "$@"
 	exit 1
 }
 
