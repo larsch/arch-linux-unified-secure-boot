@@ -30,7 +30,6 @@ append=${suffix:+-}${suffix}
 prettynameappend=${suffix:+ }$(echo "${suffix}" | tr "[:lower:]" "[:upper:]")
 initramfs=${boot}/initramfs-linux${append}.img
 kernel=${boot}/vmlinuz-linux${append}
-echo $prettynameappend
 
 latest=$(find "${esp}/EFI/Linux" -name "linux${append}-[0-9]*.efi" | sort | tail -n1)
 
@@ -90,7 +89,6 @@ fi
 	cp /etc/os-release .
 	echo "VERSION_ID=$(date -Iseconds)" >> os-release
 	sed -i "s/\(.*NAME\)=\"\(.*\)\"/\\1=\"\\2${prettynameappend}\"/" os-release 
-	cat os-release
 	
 	# Generate EFI image with stub, kernel, initrd, cmdline
 	TS=$(date +%s)
