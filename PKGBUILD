@@ -1,6 +1,6 @@
 # Maintainer: Lars Christensen <larsch@belunktum.dk>
 pkgname=unified-secure-boot
-pkgver=0.2
+pkgver=0.3
 pkgrel=1
 epoch=
 pkgdesc="Scripts to automate generation of unified kernel image for secure boot"
@@ -22,8 +22,8 @@ changelog=
 source=("99-update-unified-kernel-image.hook"
         "update-unified-kernel-image")
 noextract=()
-sha256sums=('560dcaa2ecf09d201d85eaee281c2c6e9f6bd87c73c1b81a7e4cf9eabcc3715e'
-            '86e1bef101eae636bb12205d4242dc3c599f582f992c775bf666be85312e0150')
+sha256sums=('2ed40846054ede6f7948db1cdab13675423649f0b240712d3a7b5b8492a22994'
+            'ec210f02b7ebc93b2c06d1e35b61cf3d5ba3a3922bf830209e7984d935bda144')
 validpgpkeys=()
 
 package() {
